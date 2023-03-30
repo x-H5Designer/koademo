@@ -54,7 +54,7 @@ router.get("/api/wx_openid", async (ctx) => {
 const app = new Koa();
 app
   .use(cors({
-    origin: ['http://localhost:9528/','https://prod-7ggftbcvc3306cf7-1305372775.tcloudbaseapp.com/'],
+    origin: ['http://localhost:9528/'],
     credentials: true
   }))
   .use(logger())
