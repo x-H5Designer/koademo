@@ -2,7 +2,7 @@ const Koa = require("koa");
 const Router = require("koa-router");
 const logger = require("koa-logger");
 const bodyParser = require("koa-bodyparser");
-const body = require("koa-body");
+const koabody = require("koa-body");
 const fs = require("fs");
 const path = require("path");
 const { init: initDB, Counter } = require("./db");
@@ -10,7 +10,6 @@ const { init: initDB, Counter } = require("./db");
 const router = new Router();
 
 const homePage = fs.readFileSync(path.join(__dirname, "index.html"), "utf-8");
-const cors = require("koa2-cors");
 
 // 首页
 router.get("/", async (ctx) => {
@@ -40,14 +39,9 @@ router.get("/api/count", async (ctx) => {
   const result = await Counter.count();
 
   ctx.body = {
-    code: 20000,
+    code: 0,
     data: result,
   };
-});
-router.post("/upload",async(ctx) => {
-    const file = ctx.request.files.file
-    ctx.body = { path: file.path }
-
 });
 
 // 小程序调用，获取微信 Open ID
@@ -57,21 +51,22 @@ router.get("/api/wx_openid", async (ctx) => {
   }
 });
 
+router.post("/upload",async (ctx) => {
+  const file = ctx.request.files.file
+  ctx.body = { path: file.path }
+})
+
 const app = new Koa();
 app
-  .use(cors({
-    origin: ['http://localhost:9528/'],
-    credentials: true
-  }))
-  .use(body({
+  .use(logger())
+  .use(bodyParser())
+  .use(koabody({
     multipart: true, 
     formidable: {
       uploadDir:"cloudPath: 'test.jpg'",
       keepExtensions:true
     }
   }))
-  .use(logger())
-  .use(bodyParser())
   .use(router.routes())
   .use(router.allowedMethods());
 
